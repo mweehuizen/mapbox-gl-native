@@ -98,37 +98,42 @@ global.testImplementation = function (property, layerType, isFunction) {
     return `layer.${objCName(property)} = [MGLRuntimeStylingHelper ${helperMsg}];`;
 };
 
-global.objCTestValue = function (property, layerType, indent) {
+global.objCTestValue = function (property, layerType, arraysAsStructs, indent) {
     let propertyName = originalPropertyName(property);
     switch (property.type) {
         case 'boolean':
-            return property.default ? '@NO' : '@YES';
+            return property.default ? '@"false"' : '@"true"';
         case 'number':
-            return '@0xff';
+            return '@"0xff"';
         case 'string':
-            return `@"${_.startCase(propertyName)}"`;
+            return `@"'${_.startCase(propertyName)}'"`;
         case 'enum':
-            let type = objCType(layerType, property.name);
-            let value = `${type}${camelize(_.last(_.keys(property.values)))}`;
-            return `[NSValue valueWith${type}:${value}]`;
+            return `@"'${_.last(_.keys(property.values))}'"`;
         case 'color':
-            return '[MGLColor redColor]';
+            return '@"%@", [MGLColor redColor]';
         case 'array':
             switch (arrayType(property)) {
                 case 'dasharray':
-                    return '@[@1, @2]';
+                    return '@"{1, 2}"';
                 case 'font':
-                    return `@[@"${_.startCase(propertyName)}", @"${_.startCase(_.reverse(propertyName.split('')).join(''))}"]`;
+                    return `@"{'${_.startCase(propertyName)}', '${_.startCase(_.reverse(propertyName.split('')).join(''))}'}"`;
                 case 'padding': {
-                    let iosValue = '[NSValue valueWithUIEdgeInsets:UIEdgeInsetsMake(1, 1, 1, 1)]'.indent(indent * 4);
-                    let macosValue = '[NSValue valueWithEdgeInsets:NSEdgeInsetsMake(1, 1, 1, 1)]'.indent(indent * 4);
-                    return `\n#if TARGET_OS_IPHONE\n${iosValue}\n#else\n${macosValue}\n#endif\n${''.indent((indent - 1) * 4)}`;
+                    if (arraysAsStructs) {
+                        let iosValue = '[NSValue valueWithUIEdgeInsets:UIEdgeInsetsMake(1, 1, 1, 1)]'.indent(indent * 4);
+                        let macosValue = '[NSValue valueWithEdgeInsets:NSEdgeInsetsMake(1, 1, 1, 1)]'.indent(indent * 4);
+                        return `@"%@",\n#if TARGET_OS_IPHONE\n${iosValue}\n#else\n${macosValue}\n#endif\n${''.indent((indent - 1) * 4)}`;
+                    }
+                    return '@"{1, 1, 1, 1}"';
                 }
                 case 'offset':
-                case 'translate':
-                    let iosValue = '[NSValue valueWithCGVector:CGVectorMake(1, 1)]'.indent(indent * 4);
-                    let macosValue = '[NSValue valueWithMGLVector:CGVectorMake(1, -1)]'.indent(indent * 4);
-                    return `\n#if TARGET_OS_IPHONE\n${iosValue}\n#else\n${macosValue}\n#endif\n${''.indent((indent - 1) * 4)}`;
+                case 'translate': {
+                    if (arraysAsStructs) {
+                        let iosValue = '[NSValue valueWithCGVector:CGVectorMake(1, 1)]'.indent(indent * 4);
+                        let macosValue = '[NSValue valueWithMGLVector:CGVectorMake(1, -1)]'.indent(indent * 4);
+                        return `@"%@",\n#if TARGET_OS_IPHONE\n${iosValue}\n#else\n${macosValue}\n#endif\n${''.indent((indent - 1) * 4)}`;
+                    }
+                    return '@"{1, 1}"';
+                }
                 default:
                     throw new Error(`unknown array type for ${property.name}`);
             }
@@ -297,29 +302,19 @@ global.propertyDoc = function (propertyName, property, layerType, kind) {
             }
             doc += `\n\nThis attribute corresponds to the <a href="https://www.mapbox.com/mapbox-gl-style-spec/#${anchor}"><code>${property.original}</code></a> layout property in the Mapbox Style Specification.`;
         }
-        doc += '\n\nYou can set this property to an instance of:\n\n' +
-            '* `MGLConstantStyleValue`\n';
+        doc += '\n\nYou can set this property to an expression containing any of the following:\n\n' +
+            '* Constant values\n' +
+            '* Predefined functions, including mathematical and string operators\n' +
+            '* Conditional expressions\n' +
+            '* Variable assignments and references to assigned variables\n';
         if (property["property-function"]) {
-            doc += '* `MGLCameraStyleFunction` with an interpolation mode of:\n' +
-                '  * `MGLInterpolationModeExponential`\n' +
-                '  * `MGLInterpolationModeInterval`\n' +
-                '* `MGLSourceStyleFunction` with an interpolation mode of:\n' +
-                '  * `MGLInterpolationModeExponential`\n' +
-                '  * `MGLInterpolationModeInterval`\n' +
-                '  * `MGLInterpolationModeCategorical`\n' +
-                '  * `MGLInterpolationModeIdentity`\n' +
-                '* `MGLCompositeStyleFunction` with an interpolation mode of:\n' +
-                '  * `MGLInterpolationModeExponential`\n' +
-                '  * `MGLInterpolationModeInterval`\n' +
-                '  * `MGLInterpolationModeCategorical`\n';
+            doc += '* Interpolation and step functions applied to the `$zoomLevel` variable and/or feature attributes\n';
+        } else if (property.function === "interpolated") {
+            doc += '* Interpolation and step functions applied to the `$zoomLevel` variable\n\n' +
+                'This property does not support applying interpolation or step functions to feature attributes.';
         } else {
-            if (property.function === "interpolated") {
-                doc += '* `MGLCameraStyleFunction` with an interpolation mode of:\n' +
-                    '  * `MGLInterpolationModeExponential`\n' +
-                    '  * `MGLInterpolationModeInterval`\n';
-            } else {
-                doc += '* `MGLCameraStyleFunction` with an interpolation mode of `MGLInterpolationModeInterval`\n';
-            }
+            doc += '* Step functions applied to the `$zoomLevel` variable\n\n' +
+                'This property does not support applying interpolation functions to the `$zoomLevel` variable or applying interpolation or step functions to feature attributes.';
         }
     }
     return doc;
@@ -333,7 +328,7 @@ global.propertyReqs = function (property, propertiesByName, type) {
             return '`' + camelizeWithLeadingLowercase(req['!']) + '` is set to `nil`';
         } else {
             let name = Object.keys(req)[0];
-            return '`' + camelizeWithLeadingLowercase(name) + '` is set to an `MGLStyleValue` object containing ' + describeValue(req[name], propertiesByName[name], type);
+            return '`' + camelizeWithLeadingLowercase(name) + '` is set to an expression that evaluates to ' + describeValue(req[name], propertiesByName[name], type);
         }
     }).join(', and ') + '. Otherwise, it is ignored.';
 };
@@ -349,11 +344,24 @@ global.parseColor = function (str) {
 };
 
 global.describeValue = function (value, property, layerType) {
+    if (Array.isArray(value) && property.type !== 'array' && property.type !== 'enum') {
+        switch (value[0]) {
+            case 'interpolate': {
+                let curveType = value[1][0];
+                let minimum = describeValue(value[3 + value.length % 2], property, layerType);
+                let maximum = describeValue(_.last(value), property, layerType);
+                return `${curveType.match(/^[aeiou]/i) ? 'an' : 'a'} ${curveType} interpolation expression ranging from ${minimum} to ${maximum}`;
+            }
+            default:
+                throw new Error(`No description available for ${value[0]} expression in ${property.name} of ${layerType}.`);
+        }
+    }
+    
     switch (property.type) {
         case 'boolean':
-            return 'an `NSNumber` object containing ' + (value ? '`YES`' : '`NO`');
+            return value ? '`YES`' : '`NO`';
         case 'number':
-            return 'an `NSNumber` object containing the float `' + value + '`';
+            return 'the float `' + value + '`';
         case 'string':
             if (value === '') {
                 return 'the empty string';
@@ -370,13 +378,10 @@ global.describeValue = function (value, property, layerType) {
                     let objCType = global.objCType(layerType, property.name);
                     return `${conjunction}\`${objCType}${camelize(possibleValue)}\``;
                 }).join(separator);
-            } else if (property['light-property']) {
-                displayValue = `\`${prefix}Light${camelize(property.name)}${camelize(value)}\``;
             } else {
-                let objCType = global.objCType(layerType, property.name);
-                displayValue = `\`${objCType}${camelize(value)}\``;
+                displayValue = `\`${value}\``;
             }
-            return `an \`NSValue\` object containing ${displayValue}`;
+            return displayValue;
         case 'color':
             let color = parseColor(value);
             if (!color) {
@@ -418,9 +423,9 @@ global.describeValue = function (value, property, layerType) {
 
 global.propertyDefault = function (property, layerType) {
     if (property.name === 'heatmap-color') {
-        return 'a rainbow color scale from blue to red';
+        return 'an expression that evaluates to a rainbow color scale from blue to red';
     } else {
-        return 'an `MGLStyleValue` object containing ' + describeValue(property.default, property, layerType);
+        return 'an expression that evaluates to ' + describeValue(property.default, property, layerType);
     }
 };
 
