@@ -27,7 +27,7 @@ typedef NS_ENUM(NSUInteger, MGLLightAnchor) {
  A structure containing information about the position of the light source
  relative to lit geometries.
  */
-typedef struct MGLSphericalPosition {
+typedef struct __attribute__((objc_boxable)) MGLSphericalPosition {
     /** Distance from the center of the base of an object to its light. */
     CGFloat radial;
     /** Position of the light relative to 0° (0° when `MGLLight.anchor` is set to viewport corresponds
@@ -65,20 +65,26 @@ MGL_EXPORT
 /**
  Whether extruded geometries are lit relative to the map or viewport.
  
- The default value of this property is an `MGLStyleValue` object containing an
- `NSValue` object containing `MGLLightAnchorViewport`.
+ The default value of this property is an expression that evaluates to
+ `viewport`.
  
- You can set this property to an instance of:
+ You can set this property to an expression containing any of the following:
  
- * `MGLConstantStyleValue`
- * `MGLCameraStyleFunction` with an interpolation mode of
- `MGLInterpolationModeInterval`
+ * Constant values
+ * Predefined functions, including mathematical and string operators
+ * Conditional expressions
+ * Variable assignments and references to assigned variables
+ * Step functions applied to the `$zoomLevel` variable
+ 
+ This property does not support applying interpolation functions to the
+ `$zoomLevel` variable or applying interpolation or step functions to feature
+ attributes.
 
  This property corresponds to the <a
  href="https://www.mapbox.com/mapbox-gl-js/style-spec/#light-anchor"><code>anchor</code></a>
  light property in the Mapbox Style Specification.
  */
-@property (nonatomic) MGLStyleValue<NSValue *> *anchor;
+@property (nonatomic) NSExpression *anchor;
 
 /**
  Position of the `MGLLight` source relative to lit (extruded) geometries, in a
@@ -90,21 +96,25 @@ MGL_EXPORT
  corresponds to due north, and degrees proceed clockwise), and polar indicates
  the height of the light (from 0°, directly above, to 180°, directly below).
  
- The default value of this property is an `MGLStyleValue` object containing an
+ The default value of this property is an expression that evaluates to an
  `MGLSphericalPosition` struct set to 1.15 radial, 210 azimuthal and 30 polar.
  
- You can set this property to an instance of:
+ You can set this property to an expression containing any of the following:
  
- * `MGLConstantStyleValue`
- * `MGLCameraStyleFunction` with an interpolation mode of:
-   * `MGLInterpolationModeExponential`
-   * `MGLInterpolationModeInterval`
+ * Constant values
+ * Predefined functions, including mathematical and string operators
+ * Conditional expressions
+ * Variable assignments and references to assigned variables
+ * Interpolation and step functions applied to the `$zoomLevel` variable
+ 
+ This property does not support applying interpolation or step functions to
+ feature attributes.
 
  This property corresponds to the <a
  href="https://www.mapbox.com/mapbox-gl-js/style-spec/#light-position"><code>position</code></a>
  light property in the Mapbox Style Specification.
  */
-@property (nonatomic) MGLStyleValue<NSValue *> *position;
+@property (nonatomic) NSExpression *position;
 
 /**
  The transition affecting any changes to this layer’s `position` property.
@@ -113,45 +123,28 @@ MGL_EXPORT
 */
 @property (nonatomic) MGLTransition positionTransition;
 
-#if TARGET_OS_IPHONE
 /**
  Color tint for lighting extruded geometries.
  
- The default value of this property is an `MGLStyleValue` object containing
+ The default value of this property is an expression that evaluates to
  `UIColor.whiteColor`.
  
- You can set this property to an instance of:
+ You can set this property to an expression containing any of the following:
  
- * `MGLConstantStyleValue`
- * `MGLCameraStyleFunction` with an interpolation mode of:
-   * `MGLInterpolationModeExponential`
-   * `MGLInterpolationModeInterval`
+ * Constant values
+ * Predefined functions, including mathematical and string operators
+ * Conditional expressions
+ * Variable assignments and references to assigned variables
+ * Interpolation and step functions applied to the `$zoomLevel` variable
+ 
+ This property does not support applying interpolation or step functions to
+ feature attributes.
 
  This property corresponds to the <a
  href="https://www.mapbox.com/mapbox-gl-js/style-spec/#light-color"><code>color</code></a>
  light property in the Mapbox Style Specification.
  */
-@property (nonatomic) MGLStyleValue<UIColor *> *color;
-#else
-/**
- Color tint for lighting extruded geometries.
- 
- The default value of this property is an `MGLStyleValue` object containing
- `NSColor.whiteColor`.
- 
- You can set this property to an instance of:
- 
- * `MGLConstantStyleValue`
- * `MGLCameraStyleFunction` with an interpolation mode of:
-   * `MGLInterpolationModeExponential`
-   * `MGLInterpolationModeInterval`
-
- This property corresponds to the <a
- href="https://www.mapbox.com/mapbox-gl-js/style-spec/#light-color"><code>color</code></a>
- light property in the Mapbox Style Specification.
- */
-@property (nonatomic) MGLStyleValue<NSColor *> *color;
-#endif
+@property (nonatomic) NSExpression *color;
 
 /**
  The transition affecting any changes to this layer’s `color` property.
@@ -164,21 +157,25 @@ MGL_EXPORT
  Intensity of lighting (on a scale from 0 to 1). Higher numbers will present as
  more extreme contrast.
  
- The default value of this property is an `MGLStyleValue` object containing an
- `NSNumber` object containing the float `0.5`.
+ The default value of this property is an expression that evaluates to the float
+ `0.5`.
  
- You can set this property to an instance of:
+ You can set this property to an expression containing any of the following:
  
- * `MGLConstantStyleValue`
- * `MGLCameraStyleFunction` with an interpolation mode of:
-   * `MGLInterpolationModeExponential`
-   * `MGLInterpolationModeInterval`
+ * Constant values
+ * Predefined functions, including mathematical and string operators
+ * Conditional expressions
+ * Variable assignments and references to assigned variables
+ * Interpolation and step functions applied to the `$zoomLevel` variable
+ 
+ This property does not support applying interpolation or step functions to
+ feature attributes.
 
  This property corresponds to the <a
  href="https://www.mapbox.com/mapbox-gl-js/style-spec/#light-intensity"><code>intensity</code></a>
  light property in the Mapbox Style Specification.
  */
-@property (nonatomic) MGLStyleValue<NSNumber *> *intensity;
+@property (nonatomic) NSExpression *intensity;
 
 /**
  The transition affecting any changes to this layer’s `intensity` property.
