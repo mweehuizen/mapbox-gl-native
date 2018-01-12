@@ -1,19 +1,35 @@
 #include "point.hpp"
+#include "../java/util.hpp"
 
 namespace mbgl {
 namespace android {
 namespace geojson {
 
 mapbox::geojson::point Point::convert(jni::JNIEnv &env, jni::Object<Point> jPoint) {
-    auto jPosition = Point::getPosition(env, jPoint);
-    auto point = Position::convert(env, jPosition);
-    jni::DeleteLocalRef(env, jPosition);
+    mapbox::geojson::point point;
+
+    if (jPoint) {
+        auto jDoubleList = Point::coordinates(env, jPoint);
+        point = Point::convert(env, jDoubleList);
+        jni::DeleteLocalRef(env, jDoubleList);
+    }
+
     return point;
 }
 
-jni::Object<Position> Point::getPosition(JNIEnv& env, jni::Object<Point> jPoint) {
-    static auto method = Point::javaClass.GetMethod<jni::Object<Position> ()>(env, "getCoordinates");
-    return jPoint.Call(env, method);
+mapbox::geojson::point Point::convert(jni::JNIEnv &env, jni::Object<java::util::List/*<Double>*/> jDoubleList) {
+        mapbox::geojson::point point;
+
+        if (jDoubleList) {
+            // TODO:
+            jni::DeleteLocalRef(env, jDoubleList);
+        }
+
+        return point;
+    }
+jni::Object<java::util::List> Point::coordinates(jni::JNIEnv &env, jni::Object<Point> jPoint) {
+     static auto method = Point::javaClass.GetMethod<jni::Object<java::util::List> ()>(env, "coordinates");
+     return jPoint.Call(env, method);
 }
 
 void Point::registerNative(jni::JNIEnv &env) {

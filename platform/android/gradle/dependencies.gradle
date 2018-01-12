@@ -7,7 +7,8 @@ ext {
     versionCode = 12
     versionName = "6.0.0"
 
-    mapboxServicesVersion = "2.2.9"
+    mapboxServicesVersion = "3.0.0-beta.1"
+    mapboxTelemetryVersion = "2.2.9"
     supportLibVersion = "25.4.0"
     espressoVersion = '3.0.1'
     testRunnerVersion = '1.0.1'
@@ -15,9 +16,10 @@ ext {
 
     dep = [
             // mapbox
-            mapboxJavaServices     : "com.mapbox.mapboxsdk:mapbox-java-services:${mapboxServicesVersion}@jar",
-            mapboxJavaGeoJSON      : "com.mapbox.mapboxsdk:mapbox-java-geojson:${mapboxServicesVersion}@jar",
-            mapboxAndroidTelemetry : "com.mapbox.mapboxsdk:mapbox-android-telemetry:${mapboxServicesVersion}@aar",
+            mapboxJavaServices     : "com.mapbox.mapboxsdk:mapbox-sdk-services:${mapboxServicesVersion}@jar",
+            mapboxJavaGeoJSON      : "com.mapbox.mapboxsdk:mapbox-sdk-geojson:${mapboxServicesVersion}@jar",
+            mapboxJavaTurf         : "com.mapbox.mapboxsdk:mapbox-sdk-turf:${mapboxServicesVersion}@jar",
+            mapboxAndroidTelemetry : "com.mapbox.mapboxsdk:mapbox-android-telemetry:${mapboxTelemetryVersion}@aar",
 
             // mapzen lost
             lost                   : 'com.mapzen.android:lost:3.0.4',

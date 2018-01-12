@@ -3,6 +3,7 @@ apply plugin: 'com.android.library'
 dependencies {
     api rootProject.ext.dep.mapboxAndroidTelemetry
     api rootProject.ext.dep.mapboxJavaGeoJSON
+    api rootProject.ext.dep.mapboxJavaTurf
     implementation rootProject.ext.dep.supportAnnotations
     implementation rootProject.ext.dep.supportFragmentV4
     implementation rootProject.ext.dep.timber
