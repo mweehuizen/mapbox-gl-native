@@ -5,6 +5,8 @@
 
 #include <QObject>
 
+#include <memory>
+
 namespace mbgl {
     class Renderer;
 } // namespace mbgl
@@ -22,7 +24,6 @@ public:
 
     void update(std::shared_ptr<mbgl::UpdateParameters>) override;
 
-public slots:
     void render();
 
 signals:
@@ -31,5 +32,7 @@ signals:
 private:
     std::unique_ptr<mbgl::Renderer> renderer;
     mbgl::RendererBackend& backend;
+
+    std::mutex updateMutex;
     std::shared_ptr<mbgl::UpdateParameters> updateParameters;
 };

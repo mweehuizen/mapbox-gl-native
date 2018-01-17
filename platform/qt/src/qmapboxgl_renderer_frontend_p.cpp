@@ -1,5 +1,6 @@
 #include "qmapboxgl_renderer_frontend_p.hpp"
 
+#include <mbgl/actor/scheduler.hpp>
 #include <mbgl/renderer/backend_scope.hpp>
 #include <mbgl/renderer/renderer.hpp>
 
@@ -17,7 +18,8 @@ void QMapboxGLRendererFrontend::reset() {
 }
 
 void QMapboxGLRendererFrontend::update(std::shared_ptr<mbgl::UpdateParameters> updateParameters_) {
-    updateParameters = updateParameters_;
+    std::lock_guard<std::mutex> lock(updateMutex);
+    updateParameters = std::move(updateParameters_);
     emit updated();
 }
 
@@ -28,10 +30,20 @@ void QMapboxGLRendererFrontend::setObserver(mbgl::RendererObserver& observer_) {
 }
 
 void QMapboxGLRendererFrontend::render() {
-    if (!renderer || !updateParameters) return;
-    
+    std::shared_ptr<mbgl::UpdateParameters> params;
+    {
+        // Lock on the parameters
+        std::unique_lock<std::mutex> lock(updateMutex);
+        if (!updateParameters) return;
+
+        // Hold on to the update parameters during render
+        params = updateParameters;
+    }
+
+    if (!renderer) return;
+
     // The OpenGL implementation automatically enables the OpenGL context for us.
     mbgl::BackendScope scope { backend, mbgl::BackendScope::ScopeType::Implicit };
-    
-    renderer->render(*updateParameters);
+
+    renderer->render(*params);
 }
