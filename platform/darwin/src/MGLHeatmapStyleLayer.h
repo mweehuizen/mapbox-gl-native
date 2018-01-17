@@ -41,49 +41,6 @@ MGL_EXPORT
 
 #pragma mark - Accessing the Paint Attributes
 
-#if TARGET_OS_IPHONE
-/**
- Defines the color of each point based on its density value in a heatmap. 
- Should be an expression that uses `["heatmapDensity"]` as input.
- 
- The default value of this property is an `MGLStyleValue` object containing a
- `UIColor` object whose RGB value is 1, 0, 0 and whose alpha value is 1. Set
- this property to `nil` to reset it to the default value.
- 
- You can set this property to an instance of:
- 
- * `MGLConstantStyleValue`
- * `MGLCameraStyleFunction` with an interpolation mode of:
-   * `MGLInterpolationModeExponential`
-   * `MGLInterpolationModeInterval`
- */
-@property (nonatomic, null_resettable) MGLStyleValue<UIColor *> *heatmapColor;
-#else
-/**
- Defines the color of each point based on its density value in a heatmap. 
- Should be an expression that uses `["heatmapDensity"]` as input.
- 
- The default value of this property is an `MGLStyleValue` object containing an
- `NSColor` object whose RGB value is 1, 0, 0 and whose alpha value is 1. Set
- this property to `nil` to reset it to the default value.
- 
- You can set this property to an instance of:
- 
- * `MGLConstantStyleValue`
- * `MGLCameraStyleFunction` with an interpolation mode of:
-   * `MGLInterpolationModeExponential`
-   * `MGLInterpolationModeInterval`
- */
-@property (nonatomic, null_resettable) MGLStyleValue<NSColor *> *heatmapColor;
-#endif
-
-/**
- The transition affecting any changes to this layer’s `heatmapColor` property.
-
- This property corresponds to the `heatmap-color-transition` property in the style JSON file format.
-*/
-@property (nonatomic) MGLTransition heatmapColorTransition;
-
 /**
  Similar to `heatmapWeight` but controls the intensity of the heatmap globally.
  Primarily used for adjusting the heatmap based on zoom level.

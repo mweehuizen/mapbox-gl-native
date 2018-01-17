@@ -580,6 +580,7 @@ const layers = _(spec.layer.type.values).map((value, layerType) => {
     }, []);
 
     const paintProperties = Object.keys(spec[`paint_${layerType}`]).reduce((memo, name) => {
+        if (name === 'heatmap-color') return memo;
         spec[`paint_${layerType}`][name].name = name;
         memo.push(spec[`paint_${layerType}`][name]);
         return memo;

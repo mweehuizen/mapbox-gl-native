@@ -48,54 +48,6 @@
     MGLTransition transitionTest = MGLTransitionMake(5, 4);
 
 
-    // heatmap-color
-    {
-        XCTAssertTrue(rawLayer->getHeatmapColor().isUndefined(),
-                      @"heatmap-color should be unset initially.");
-        MGLStyleValue<MGLColor *> *defaultStyleValue = layer.heatmapColor;
-
-        MGLStyleValue<MGLColor *> *constantStyleValue = [MGLStyleValue<MGLColor *> valueWithRawValue:[MGLColor redColor]];
-        layer.heatmapColor = constantStyleValue;
-        mbgl::style::PropertyValue<mbgl::Color> propertyValue = { { 1, 0, 0, 1 } };
-        XCTAssertEqual(rawLayer->getHeatmapColor(), propertyValue,
-                       @"Setting heatmapColor to a constant value should update heatmap-color.");
-        XCTAssertEqualObjects(layer.heatmapColor, constantStyleValue,
-                              @"heatmapColor should round-trip constant values.");
-
-        MGLStyleValue<MGLColor *> * functionStyleValue = [MGLStyleValue<MGLColor *> valueWithInterpolationMode:MGLInterpolationModeInterval cameraStops:@{@18: constantStyleValue} options:nil];
-        layer.heatmapColor = functionStyleValue;
-
-        mbgl::style::IntervalStops<mbgl::Color> intervalStops = { {{18, { 1, 0, 0, 1 }}} };
-        propertyValue = mbgl::style::CameraFunction<mbgl::Color> { intervalStops };
-        
-        XCTAssertEqual(rawLayer->getHeatmapColor(), propertyValue,
-                       @"Setting heatmapColor to a camera function should update heatmap-color.");
-        XCTAssertEqualObjects(layer.heatmapColor, functionStyleValue,
-                              @"heatmapColor should round-trip camera functions.");
-
-                              
-
-        layer.heatmapColor = nil;
-        XCTAssertTrue(rawLayer->getHeatmapColor().isUndefined(),
-                      @"Unsetting heatmapColor should return heatmap-color to the default value.");
-        XCTAssertEqualObjects(layer.heatmapColor, defaultStyleValue,
-                              @"heatmapColor should return the default value after being unset.");
-
-        functionStyleValue = [MGLStyleValue<MGLColor *> valueWithInterpolationMode:MGLInterpolationModeIdentity sourceStops:nil attributeName:@"" options:nil];
-        XCTAssertThrowsSpecificNamed(layer.heatmapColor = functionStyleValue, NSException, NSInvalidArgumentException, @"MGLStyleValue should raise an exception if it is applied to a property that cannot support it");
-        functionStyleValue = [MGLStyleValue<MGLColor *> valueWithInterpolationMode:MGLInterpolationModeInterval compositeStops:@{@18: constantStyleValue} attributeName:@"" options:nil];
-        XCTAssertThrowsSpecificNamed(layer.heatmapColor = functionStyleValue, NSException, NSInvalidArgumentException, @"MGLStyleValue should raise an exception if it is applied to a property that cannot support it");
-        // Transition property test
-        layer.heatmapColorTransition = transitionTest;
-        auto toptions = rawLayer->getHeatmapColorTransition();
-        XCTAssert(toptions.delay && MGLTimeIntervalFromDuration(*toptions.delay) == transitionTest.delay);
-        XCTAssert(toptions.duration && MGLTimeIntervalFromDuration(*toptions.duration) == transitionTest.duration);
-
-        MGLTransition heatmapColorTransition = layer.heatmapColorTransition;
-        XCTAssertEqual(heatmapColorTransition.delay, transitionTest.delay);
-        XCTAssertEqual(heatmapColorTransition.duration, transitionTest.duration);
-    }
-
     // heatmap-intensity
     {
         XCTAssertTrue(rawLayer->getHeatmapIntensity().isUndefined(),
@@ -299,7 +251,6 @@
 }
 
 - (void)testPropertyNames {
-    [self testPropertyName:@"heatmap-color" isBoolean:NO];
     [self testPropertyName:@"heatmap-intensity" isBoolean:NO];
     [self testPropertyName:@"heatmap-opacity" isBoolean:NO];
     [self testPropertyName:@"heatmap-radius" isBoolean:NO];

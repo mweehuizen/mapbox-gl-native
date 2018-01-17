@@ -68,41 +68,6 @@
 
 #pragma mark - Accessing the Paint Attributes
 
-- (void)setHeatmapColor:(MGLStyleValue<MGLColor *> *)heatmapColor {
-    MGLAssertStyleLayerIsValid();
-
-    auto mbglValue = MGLStyleValueTransformer<mbgl::Color, MGLColor *>().toInterpolatablePropertyValue(heatmapColor);
-    self.rawLayer->setHeatmapColor(mbglValue);
-}
-
-- (MGLStyleValue<MGLColor *> *)heatmapColor {
-    MGLAssertStyleLayerIsValid();
-
-    auto propertyValue = self.rawLayer->getHeatmapColor();
-    if (propertyValue.isUndefined()) {
-        return MGLStyleValueTransformer<mbgl::Color, MGLColor *>().toStyleValue(self.rawLayer->getDefaultHeatmapColor());
-    }
-    return MGLStyleValueTransformer<mbgl::Color, MGLColor *>().toStyleValue(propertyValue);
-}
-
-- (void)setHeatmapColorTransition:(MGLTransition )transition {
-    MGLAssertStyleLayerIsValid();
-
-    mbgl::style::TransitionOptions options { { MGLDurationFromTimeInterval(transition.duration) }, { MGLDurationFromTimeInterval(transition.delay) } };
-    self.rawLayer->setHeatmapColorTransition(options);
-}
-
-- (MGLTransition)heatmapColorTransition {
-    MGLAssertStyleLayerIsValid();
-
-    mbgl::style::TransitionOptions transitionOptions = self.rawLayer->getHeatmapColorTransition();
-    MGLTransition transition;
-    transition.duration = MGLTimeIntervalFromDuration(transitionOptions.duration.value_or(mbgl::Duration::zero()));
-    transition.delay = MGLTimeIntervalFromDuration(transitionOptions.delay.value_or(mbgl::Duration::zero()));
-
-    return transition;
-}
-
 - (void)setHeatmapIntensity:(MGLStyleValue<NSNumber *> *)heatmapIntensity {
     MGLAssertStyleLayerIsValid();
 
