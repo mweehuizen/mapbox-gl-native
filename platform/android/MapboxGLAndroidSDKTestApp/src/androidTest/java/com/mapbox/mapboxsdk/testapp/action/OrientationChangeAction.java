@@ -17,7 +17,7 @@ public class OrientationChangeAction implements ViewAction {
 
   private final int orientation;
 
-  private OrientationChangeAction(int orientation) {
+  OrientationChangeAction(int orientation) {
     this.orientation = orientation;
   }
 
