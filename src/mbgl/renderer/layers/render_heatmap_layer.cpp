@@ -56,22 +56,25 @@ void RenderHeatmapLayer::render(PaintParameters& parameters, RenderSource*) {
         for (const RenderTile& tile : renderTiles) {
             assert(dynamic_cast<HeatmapBucket*>(tile.tile.getBucket(*baseImpl)));
             HeatmapBucket& bucket = *reinterpret_cast<HeatmapBucket*>(tile.tile.getBucket(*baseImpl));
+            
+            const auto matrix = tile.translatedMatrix(std::array<float, 2>{{0, 0}},
+                                                           TranslateAnchorType::Map,
+                                                           parameters.state);
+            const auto extrudeScale = tile.id.pixelsToTileUnits(1, parameters.state.getZoom());
+            
+            const auto stencilMode = parameters.mapMode != MapMode::Continuous
+                ? parameters.stencilModeForClipping(tile.clip)
+                : gl::StencilMode::disabled();
 
             parameters.programs.heatmap.get(evaluated).draw(
                 parameters.context,
                 gl::Triangles(),
                 parameters.depthModeForSublayer(0, gl::DepthMode::ReadOnly),
-                parameters.mapMode != MapMode::Continuous
-                    ? parameters.stencilModeForClipping(tile.clip)
-                    : gl::StencilMode::disabled(),
+                stencilMode,
                 parameters.colorModeForRenderPass(),
                 HeatmapProgram::UniformValues {
-                    uniforms::u_matrix::Value{
-                        tile.translatedMatrix(std::array<float, 2>{{0, 0}},
-                                              TranslateAnchorType::Map,
-                                              parameters.state)
-                    },
-                    uniforms::heatmap::u_extrude_scale::Value{ tile.id.pixelsToTileUnits(1, parameters.state.getZoom()) }
+                    uniforms::u_matrix::Value{matrix},
+                    uniforms::heatmap::u_extrude_scale::Value{extrudeScale}
                 },
                 *bucket.vertexBuffer,
                 *bucket.indexBuffer,
