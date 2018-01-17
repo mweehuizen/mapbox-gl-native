@@ -36,7 +36,7 @@ const highp float ZERO = 1.0 / 255.0 / 16.0;
 #define GAUSS_COEF 0.3989422804014327
 
 void main(void) {
-    
+
 #ifndef HAS_UNIFORM_u_weight
     weight = unpack_mix_vec2(a_weight, a_weight_t);
 #else
@@ -92,7 +92,7 @@ varying vec2 v_extrude;
 #define GAUSS_COEF 0.3989422804014327
 
 void main() {
-    
+
 #ifdef HAS_UNIFORM_u_weight
     highp float weight = u_weight;
 #endif
@@ -103,6 +103,8 @@ void main() {
     float val = weight * u_intensity * GAUSS_COEF * exp(d);
 
     gl_FragColor = vec4(val, 1.0, 1.0, 1.0);
+
+    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 
 #ifdef OVERDRAW_INSPECTOR
     gl_FragColor = vec4(1.0);

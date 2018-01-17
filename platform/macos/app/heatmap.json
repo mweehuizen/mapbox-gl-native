@@ -797,15 +797,22 @@
             }
         },
         {
-            "id": "road-points",
+            "id": "road-heatmap",
             "type": "heatmap",
             "source": "mapbox",
             "source-layer": "road",
-            "layout": {
-                "visibility": "visible"
-            },
             "paint": {
                 "heatmap-intensity": 1
+            }
+        },
+        {
+            "id": "road-circles",
+            "type": "circle",
+            "source": "mapbox",
+            "source-layer": "road",
+            "paint": {
+                "circle-radius": 2,
+                "circle-color": "green"
             }
         }
     ]

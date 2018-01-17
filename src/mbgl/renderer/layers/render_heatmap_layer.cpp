@@ -51,11 +51,11 @@ void RenderHeatmapLayer::render(PaintParameters& parameters, RenderSource*) {
     }
 
     if (parameters.pass == RenderPass::Translucent) {
+        // parameters.context.clear(Color{ 0.0f, 0.0f, 0.0f, 1.0f }, {}, {});
+
         for (const RenderTile& tile : renderTiles) {
             assert(dynamic_cast<HeatmapBucket*>(tile.tile.getBucket(*baseImpl)));
             HeatmapBucket& bucket = *reinterpret_cast<HeatmapBucket*>(tile.tile.getBucket(*baseImpl));
-
-            // parameters.context.clear(Color{ 1.0f, 0.0f, 0.0f, 1.0f }, {}, {});
 
             parameters.programs.heatmap.get(evaluated).draw(
                 parameters.context,
