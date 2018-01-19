@@ -88,7 +88,6 @@ void main() {
         1.0,
         1.0), 0.0, 1.0);
 
-
 #ifdef OVERDRAW_INSPECTOR
     gl_FragColor = vec4(1.0);
 #endif

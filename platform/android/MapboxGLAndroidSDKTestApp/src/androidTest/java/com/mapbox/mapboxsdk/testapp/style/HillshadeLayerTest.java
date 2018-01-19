@@ -87,27 +87,6 @@ public class HillshadeLayerTest extends BaseActivityTest {
   }
 
   @Test
-  public void testSourceLayer() {
-    validateTestSetup();
-    setupLayer();
-    Timber.i("SourceLayer");
-    invoke(mapboxMap, new MapboxMapAction.OnInvokeActionListener() {
-      @Override
-      public void onInvokeAction(UiController uiController, MapboxMap mapboxMap) {
-        assertNotNull(layer);
-
-        // Get initial
-        assertEquals(layer.getSourceLayer(), "composite");
-
-        // Set
-        final String sourceLayer = "test";
-        layer.setSourceLayer(sourceLayer);
-        assertEquals(layer.getSourceLayer(), sourceLayer);
-      }
-    });
-  }
-
-  @Test
   public void testHillshadeIlluminationDirectionTransition() {
     validateTestSetup();
     setupLayer();

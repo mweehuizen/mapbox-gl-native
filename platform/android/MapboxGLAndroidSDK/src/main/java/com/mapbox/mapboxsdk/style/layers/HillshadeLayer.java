@@ -60,35 +60,6 @@ public class HillshadeLayer extends Layer {
   }
 
   /**
-   * Get the source layer.
-   *
-   * @return sourceLayer the source layer to get
-   */
-  public String getSourceLayer() {
-    return nativeGetSourceLayer();
-  }
-
-  /**
-   * Set a single filter.
-   *
-   * @param filter the filter to set
-   */
-  public void setFilter(Filter.Statement filter) {
-    nativeSetFilter(filter.toArray());
-  }
-
-  /**
-   * Set a single filter.
-   *
-   * @param filter the filter to set
-   * @return This
-   */
-  public HillshadeLayer withFilter(Filter.Statement filter) {
-    setFilter(filter);
-    return this;
-  }
-
-  /**
    * Set a property or properties.
    *
    * @param properties the var-args properties
