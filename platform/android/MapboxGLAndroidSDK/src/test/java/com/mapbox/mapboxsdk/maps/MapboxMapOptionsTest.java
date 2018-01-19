@@ -5,7 +5,7 @@ import android.view.Gravity;
 
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.constants.MapboxConstants;
-import com.mapbox.mapboxsdk.constants.Style;
+import com.mapbox.mapboxsdk.constants.StyleConstants;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import org.junit.Test;
@@ -162,8 +162,8 @@ public class MapboxMapOptionsTest {
 
   @Test
   public void testStyleUrl() {
-    assertEquals(Style.DARK, new MapboxMapOptions().styleUrl(Style.DARK).getStyle());
-    assertNotEquals(Style.LIGHT, new MapboxMapOptions().styleUrl(Style.DARK).getStyle());
+    assertEquals(StyleConstants.DARK, new MapboxMapOptions().styleUrl(StyleConstants.DARK).getStyle());
+    assertNotEquals(StyleConstants.LIGHT, new MapboxMapOptions().styleUrl(StyleConstants.DARK).getStyle());
     assertNull(new MapboxMapOptions().getStyle());
   }
 
